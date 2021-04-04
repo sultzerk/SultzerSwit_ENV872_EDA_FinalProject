@@ -26,8 +26,4 @@ vignettes/*.pdf
 *.knit.md
 # R Environment Variables
 .Renviron
-<<<<<<< HEAD
-SultzerSwit_ENV872_EDA_FinalProject.Rproj
-=======
 *.Rproj
->>>>>>> 9b749ff3ff2c1020ee0c0916f59470b5033f9764
