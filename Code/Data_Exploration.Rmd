@@ -16,6 +16,8 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r, importing data}
 Poop <- read.csv("./Data/Raw/FAOSTAT_data_1980_2050.csv")
 
+summary(Poop)
+
 ```
 
 ## Including Plots
