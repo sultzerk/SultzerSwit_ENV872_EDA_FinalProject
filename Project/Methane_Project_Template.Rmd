@@ -1,0 +1,88 @@
+---
+output: 
+  pdf_document:
+    keep_tex: yes
+    fig_caption: yes
+    number_sections: yes
+geometry: margin=2.54cm
+title: "Insert title of project here"
+subtitle: "Web address for GitHub repository"
+author: "Name"
+fontsize: 12pt
+mainfont: Times New Roman
+
+---
+
+\newpage
+\tableofcontents 
+\newpage
+\listoftables 
+\newpage
+\listoffigures 
+\newpage
+
+```{r setup, include=FALSE}
+# Set your working directory
+
+# Load your packages
+
+# Set your ggplot theme
+
+# Load your datasets
+
+```
+
+
+# Rationale and Research Questions
+
+Question:
+
+_*STEP 1: Have methane emissions gone up?*_
+
+* Create time series of methane produced by one or two livestock for general trend
++ Use CH4 emissions variable – want to see if the gigagrams of methane have increased over time 
++ Filter for one element for time series?
+
+_* STEP 2:*_
+Specifically:
+
+* Is there a difference in rate produced by each animal? Looking for statistical difference between the rates of different livestock
++ Run an ANOVA test - check whether or not there is a significant difference between livestock 
++ Use the Implied emissions factor variable 
++ Make fancy summary tables
+
+
+\newpage
+
+# Dataset Information
+
+
+
+\newpage
+
+# Exploratory Analysis 
+
+
+
+\newpage
+
+# Analysis
+
+
+
+## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
+
+## Question 2: 
+
+
+
+
+\newpage
+
+# Summary and Conclusions
+
+
+\newpage
+
+# References
+<add references here if relevant, otherwise delete this section> 

@@ -17,13 +17,20 @@ Poop_raw <- read.csv("./Data/Raw/FAOSTAT_data_1980_2050.csv", stringsAsFactors =
 summary(Poop_raw)
 ```
 ```{r, paring down data}
-
+#Filter data
 Poop_filtered <- Poop_raw %>% 
   select(Area, Element, Item, Year:Flag.Description)
 
 
 ```
 
+```{r}
+#filter out CH4 management element
+
+Poop_CH4 <- Poop_filtered %>% 
+  filter(Element == "Emissions (CH4) (Manure management)") %>% 
+  select(Area, Element, Item, Year:Flag.Description)
+```
 
 
 ## Including Plots
