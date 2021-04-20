@@ -9,13 +9,27 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, reading in data}
 library(tidyverse)
+library(ggplot2)
 Poop_raw <- read.csv("./Data/Raw/FAOSTAT_data_1980_2050.csv", stringsAsFactors = TRUE)
+#filtering just for the columns we want
 Poop_filtered <- Poop_raw %>% 
-  select(Area, Element, Item, Year:Flag.Description)
+  select(Element, Item, Year:Value)
+#filtering for only total CH4 (methane)
 Poop_CH4 <- Poop_filtered %>% 
-  filter(Element == "Emissions (CH4) (Manure management)") %>% 
-  select(Area, Element, Item, Year:Flag.Description)
+  filter(Element == "Emissions (CH4) (Manure management)")
 ```
+
+```{r}
+#set theme
+mytheme <- theme_classic(base_size = 14) + 
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "right", 
+        legend.box.background = element_rect(color="black"), legend.background = element_blank(),  
+        plot.title=element_text(hjust = 0.5))
+#makes font size bigger, puts legend on right, puts box around legend, centers title in middle
+theme_set(mytheme) #setting for all subsequent plots
+```
+
 
 
 ```{r}
@@ -35,26 +49,62 @@ Item | Animal | 13 animals: asses, cattle, chicken, ducks, goats, horses, mules,
 Time | years | 1980-2050 (predicted 2030 and 2050)
 
 ```{r}
+#filter to remove projected data (remove empty years) 
+CH4_time <- Poop_CH4 %>% 
+  filter(Year %in% c(1980:2018))
+
+#simple visualization of methane emissions from animals 
+CH4_plot <- ggplot(CH4_time, aes(x=Year, y=Value, color=Item))+
+  geom_line(size=1.1)+
+  labs(y="Methane (gigagrams)", title = "Methane Emissions by Animals", col="Animal")
+print(CH4_plot)
+```
+
+
+
+```{r}
 #making a filtered dataset for the rate
 Poop_CH4_rate <- Poop_filtered %>% 
-  filter(Element == "Implied emission factor for CH4 (Manure management)") %>% 
-  select(Area, Element, Item, Year:Flag.Description)
+  filter(Element == "Implied emission factor for CH4 (Manure management)") 
 ```
 
 
 ```{r, data visualization}
-#making a boxplot showing difference in rates per animal
-library(ggplot2)
 #making dataset for one year for visualization purposes
 Poop_rate_1year <- Poop_CH4_rate %>% 
   filter(Year == "1980")
 #making barplot
-ggplot(data=Poop_rate_1year, aes(x=Item,y= Value))+
+Rate_barplot <- ggplot(data=Poop_rate_1year, aes(x=Item,y= Value))+
   geom_bar(stat="identity")+
   theme(axis.text.x = element_text(angle=45, hjust=1))+
   labs(title="Methane Emission Rates by Animal", x = "Animal", y = "kg CH4/head")
+Rate_barplot
+```
 
+
+```{r}
 #making lineplot to show head of animals over time
+#filtering for only stocks (head of animals) and exclude future years
+Stocks <- Poop_filtered %>% 
+  filter(Element == "Stocks") %>% 
+  filter(Year %in% c(1980:2018))
+
+#full lineplot to show head of animals over time
+Stock_plot <- ggplot(Stocks, aes(x=Year, y=Value, color=Item))+
+  geom_line(size=1.1)+
+  labs(y="Stocks (head)", title = "Livestock Over Time", col="Animal")
+print(Stock_plot)
+
+#making lineplot without chickens for better visualization
+Stock_nochix <- Stocks %>% 
+  filter(Item %in% c("Asses", "Cattle, dairy", "Cattle, non-dairy", "Chickens, layers", "Ducks", "Goats", "Horses", "Mules", "Sheep", "Swine, breeding", "Swine, market", "Turkeys") )
+
+Stock_plot_nochix <- ggplot(Stock_nochix, aes(x=Year, y=Value, color=Item))+
+  geom_line(size=1.1)+
+  labs(y="Stocks (head)", title = "Livestock Over Time", col="Animal")
+print(Stock_plot_nochix)
+
+
 
 ```
 
