@@ -7,22 +7,55 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r, reading in data}
+library(tidyverse)
+Poop_raw <- read.csv("./Data/Raw/FAOSTAT_data_1980_2050.csv", stringsAsFactors = TRUE)
+Poop_filtered <- Poop_raw %>% 
+  select(Area, Element, Item, Year:Flag.Description)
+Poop_CH4 <- Poop_filtered %>% 
+  filter(Element == "Emissions (CH4) (Manure management)") %>% 
+  select(Area, Element, Item, Year:Flag.Description)
+```
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
+#making summary tables of CH4 data
+summary(Poop_CH4)
+range(Poop_CH4$Value)
+mean(Poop_CH4$Value)
+unique(Poop_CH4$Item)
+
 
 ```
 
-## Including Plots
+**Variables** | **Units** | **Ranges** | **Central Tendencies**
+----------------- | -------------------------- | --------------------- | ----------------
+Methane Emissions | gigagrams CH4 | 0-670.9518  | 102.2441
+Item | Animal | 13 animals: asses, cattle, chicken, ducks, goats, horses, mules, sheep, swine, turkey
+Time | years | 1980-2050 (predicted 2030 and 2050)
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+#making a filtered dataset for the rate
+Poop_CH4_rate <- Poop_filtered %>% 
+  filter(Element == "Implied emission factor for CH4 (Manure management)") %>% 
+  select(Area, Element, Item, Year:Flag.Description)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r, data visualization}
+#making a boxplot showing difference in rates per animal
+library(ggplot2)
+#making dataset for one year for visualization purposes
+Poop_rate_1year <- Poop_CH4_rate %>% 
+  filter(Year == "1980")
+#making barplot
+ggplot(data=Poop_rate_1year, aes(x=Item,y= Value))+
+  geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  labs(title="Methane Emission Rates by Animal", x = "Animal", y = "kg CH4/head")
+
+#making lineplot to show head of animals over time
+
+```
+
+
