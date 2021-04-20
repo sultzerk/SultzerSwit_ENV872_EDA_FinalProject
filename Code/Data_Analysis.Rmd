@@ -24,34 +24,82 @@ library(pals)
 
 
 #set theme
-mytheme <- theme_classic(base_size = 14) +
+mytheme <- theme_classic(base_size = 14) + 
   theme(axis.text = element_text(color = "black"), 
-        legend.position = "top")
-theme_set(mytheme)
+        legend.position = "right", 
+        legend.box.background = element_rect(color="black"), legend.background = element_blank(),  
+        plot.title=element_text(hjust = 0.5))
+#makes font size bigger, puts legend on right, puts box around legend, centers title in middle
+theme_set(mytheme) #setting for all subsequent plots
 ```
 
-```{r}
-#simple visualization 
-CH4_plot <- ggplot(Poop_CH4, aes(x=Year, y=Value, color=Item))+
-  geom_line(aes(size=2))
-print(CH4_plot)
-```
+```{r processed.data}
+Poop_raw <- read.csv("./Data/Raw/FAOSTAT_data_1980_2050.csv", stringsAsFactors = TRUE)
 
-```{r decompose.time.series}
+#filter for desired variables
+Poop_filtered <- Poop_raw %>% 
+  select(Element, Item, Year:Value)
 
-#filter to remove projected data (remove empty years) 
+#filter for CH4 data
+Poop_CH4 <- Poop_filtered %>% 
+  filter(Element == "Emissions (CH4) (Manure management)")  
+  
+#filter to remove projected data (removed 2030 and 2050 to eliminate empty years for time series) 
 CH4_time <- Poop_CH4 %>% 
   filter(Year %in% c(1980:2018))
 
-#create time series component
-CH4_ts <- ts(CH4_time$Value, start=1980, end=2018)
+#separate items into individual columns
+CH4_items <- pivot_wider(CH4_time, names_from=Item, values_from=Value)
 
-CH4_nonseasonal <- mk.test(CH4_ts)
-CH4_nonseasonal
-
-#decompose time series
-#CH4_decomposed <- stl(CH4_ts, t.window = "periodic")
 ```
+
+
+
+```{r}
+#simple visualization of methane emissions from animals 
+CH4_plot <- ggplot(CH4_time, aes(x=Year, y=Value, color=Item))+
+  geom_line(size=1.1)+
+  labs(y="Methane (gigagrams)", title = "Methane Emissions by Animals", col="Animal")
+print(CH4_plot)
+```
+
+```{r Time.Series.Cattle.Dairy}
+#Create time series component dor dairy cattle
+CH4_cattle_dairy_ts <- ts(CH4_items$`Cattle, dairy`, start=1980, end=2018)
+
+#Run Mann-Kendall test to test for trend
+CH4_cattle_dairy_mk <- mk.test(CH4_cattle_dairy_ts)
+CH4_cattle_dairy_mk
+
+#Plot time series
+plot.ts(CH4_cattle_dairy_ts)
+
+```
+
+
+```{r Time.Series.Swine.Market}
+#Create time series component for market swine
+CH4_swine_market_ts <- ts(CH4_items$`Swine, market`, start=1980, end=2018)
+
+#Run Mann-Kendall test to test for trend
+CH4_swine_market_mk <- mk.test(CH4_swine_market_ts)
+CH4_swine_market_mk
+
+#Plot time series
+plot.ts(CH4_swine_market_ts)
+
+
+wind_data_plot <-
+ggplot(wind_data, aes(x = DATE, y = AWND)) +
+  geom_point() +
+  geom_line() +
+  ylab("Average Wind Speed") +
+  geom_smooth( method = lm )
+print(wind_data_plot)
+```
+
+
+
 ```{r}
 CH4_asses <- CH4_time %>% 
   filter(Item=="Asses")
