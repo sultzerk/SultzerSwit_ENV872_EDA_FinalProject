@@ -7,22 +7,63 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r library}
+library(tidyverse)
+library(lubridate)
+#install.packages("trend") - runs stationary tests
+library(trend)
+#install.packages("zoo") - replaces missing values in time series
+library(zoo)
+#install.packages("Kendall") - specific to one stationary test to be performed
+library(Kendall)
+#install.packages("tseries")
+library(tseries)
+library(RColorBrewer)
+library(viridis)
+library(pals)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+#set theme
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+#simple visualization 
+CH4_plot <- ggplot(Poop_CH4, aes(x=Year, y=Value, color=Item))+
+  geom_line(aes(size=2))
+print(CH4_plot)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r decompose.time.series}
+
+#filter to remove projected data (remove empty years) 
+CH4_time <- Poop_CH4 %>% 
+  filter(Year %in% c(1980:2018))
+
+#create time series component
+CH4_ts <- ts(CH4_time$Value, start=1980, end=2018)
+
+CH4_nonseasonal <- mk.test(CH4_ts)
+CH4_nonseasonal
+
+#decompose time series
+#CH4_decomposed <- stl(CH4_ts, t.window = "periodic")
+```
+```{r}
+CH4_asses <- CH4_time %>% 
+  filter(Item=="Asses")
+
+CH4_asses_ts <- ts(CH4_asses$Value, start=1980, end=2018, frequency=1)
+CH4_asses_decomposed <- stl(CH4_asses_ts, s.window = "periodic")
+
+#use a cowplot
+#use plot.ts or ts.plot
+#pivot wider to separate items
+#trend for time series
+
+```
+
+
