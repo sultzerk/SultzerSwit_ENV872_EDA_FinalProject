@@ -1,6 +1,8 @@
 ---
 title: "Data Analysis"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -20,6 +22,7 @@ library(Kendall)
 library(tseries)
 library(RColorBrewer)
 library(viridis)
+library(agricolae)
 
 
 #set theme
@@ -120,12 +123,21 @@ CH4_asses_decomposed <- stl(CH4_asses_ts, s.window = "periodic")
 ```
 
 Anova test and stuff
+```{r, viewing boxplot of methane by animal}
+CH4.boxplot <- ggplot(data = Poop_CH4, aes(x=Item, y = Value))+
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  labs(title="Average Methane Emissions by Animal", x = "Animal", y = "CH4 Emissions (gigagrams)")
+CH4.boxplot
+```
+
+
+
 ```{r, anova normality tests}
 # Test for normality. 
 # Note: the important assumption for GLMs is normality of residuals, 
 # not necessarily normality of raw data. See below when we plot the model.
 # shapiro.test() performs the Shapiro-Wilk test of the null that data follows a normal distribution
-shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"])
 
 shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Asses"]) #not normal
 shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Cattle, dairy"]) #not normal
@@ -155,8 +167,57 @@ bartlett.test(Poop_CH4$Value ~ Poop_CH4$Item)
 ```
 
 ```{r, anova}
+# Format ANOVA as aov
+CH4.anova <- aov(data=Poop_CH4, Value ~ Item)
+summary(CH4.anova)
+#results: reject null hypothesis i.e. difference between a pair of animals is statistically significant
+#but it's not telling us which animals aren't the same
 
+# Format ANOVA as lm
+CH4.anova2 <- lm(data=Poop_CH4, Value ~ Item)
+summary(CH4.anova2)
+#intercept represents asses here
+#wow, this R2 is 99%!
 
+# Checking model fit and assumptions
+# ANOVA is not? robust against departures from normality.
+plot(CH4.anova2)
 ```
 
+
+```{r, anova post-hoc tests}
+# Post-hoc test
+# TukeyHSD() computes Tukey Honest Significant Differences
+TukeyHSD(CH4.anova)
+#outputs all of differences for sites-pvalue for multiple comparisons
+
+# Extract groupings for pairwise relationships
+CH4.groups <- HSD.test(CH4.anova, "Item", group = TRUE)
+CH4.groups
+#sheep, goats, ducks, asses, mules are all in same grouping
+
+# Graph the results
+Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  stat_summary(geom = "text", fun = max, vjust = -1, size = 3.5,
+               label = c("abc", "ab", "abcd", "bcd", "bcd", "a", 
+                         "d", "abcd", "cd", "d", "abcd", "abcd")) +
+  labs(x = "Plot ID", y = "Dry Mass (g)") +
+  ylim(0, 85)
+print(Litter.Totals.plot)
+
+CH4.groups.plot <- ggplot(Poop_CH4, aes(x=Item, y = Value))+
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  stat_summary(geom="text", fun=max, vjust=-1, size=3.5,
+               label=c("h", "b", "d", "f", "e", "h", "h", "gh", "h", "h", "c", "a", "fh"))
+  
+  
+  CH4.boxplot <- ggplot(data = Poop_CH4, aes(x=Item, y = Value))+
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  labs(title="Average Methane Emissions by Animal", x = "Animal", y = "CH4 Emissions (gigagrams)")
+
+```
 
