@@ -23,6 +23,7 @@ library(tseries)
 library(RColorBrewer)
 library(viridis)
 library(agricolae)
+library(ggplot2)
 
 
 #set theme
@@ -107,6 +108,30 @@ print(Swine_market_plot)
 ```
 
 
+```{r, time series for all years!}
+#making filtered dataset for averages
+Total.CH4.allyears <- CH4_time %>% 
+  group_by(Year) %>% 
+  summarise(Mean.Methane=mean(Value),
+            Sum.Methane=sum(Value))
+
+#view lineplots
+CH4.average.plot <- ggplot(data=Total.CH4.allyears,aes(x=Year, y=Sum.Methane))+
+  geom_line()+
+  geom_smooth(method = lm )+
+  labs(y="Total CH4 (gg)", title="Methane Emissions Over Time")+
+  scale_y_continuous(limits = c(1200,1500))
+CH4.average.plot
+
+#running time series
+Total_ts <- ts(Total.CH4.allyears$Sum.Methane, start=1980, end=2018)
+
+#run Mann-Kendall test to test for trend
+Total_ts_mk <- mk.test(Total_ts)
+Total_ts_mk #low p-value so there is a trend!
+```
+
+
 
 ```{r}
 CH4_asses <- CH4_time %>% 
@@ -124,7 +149,7 @@ CH4_asses_decomposed <- stl(CH4_asses_ts, s.window = "periodic")
 
 Anova test and stuff
 ```{r, viewing boxplot of methane by animal}
-CH4.boxplot <- ggplot(data = Poop_CH4, aes(x=Item, y = Value))+
+CH4.boxplot <- ggplot(data = CH4_time, aes(x=Item, y = Value))+
   geom_boxplot()+
   theme(axis.text.x = element_text(angle=45, hjust=1))+
   labs(title="Average Methane Emissions by Animal", x = "Animal", y = "CH4 Emissions (gigagrams)")
@@ -139,28 +164,28 @@ CH4.boxplot
 # not necessarily normality of raw data. See below when we plot the model.
 # shapiro.test() performs the Shapiro-Wilk test of the null that data follows a normal distribution
 
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Asses"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Cattle, dairy"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Cattle, non-dairy"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Chickens, broilers"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Chickens, layers"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Goats"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Ducks"]) #normally distributed
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Horses"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Mules"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Sheep"]) #not normal
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Swine, breeding"]) #normally dist
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Swine, market"]) #normally dist
-shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Turkeys"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Asses"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Cattle, dairy"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Cattle, non-dairy"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Chickens, broilers"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Chickens, layers"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Goats"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Ducks"]) #normally distributed
+shapiro.test(CH4_time$Value[CH4_time$Item == "Horses"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Mules"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Sheep"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Swine, breeding"]) #normally dist
+shapiro.test(CH4_time$Value[CH4_time$Item == "Swine, market"]) #normally dist
+shapiro.test(CH4_time$Value[CH4_time$Item == "Turkeys"]) #not normal
 #most of animals are not normally distributed-reject null in all but 3 cases
 
-qqnorm(Poop_CH4$Value); qqline(Poop_CH4$Value)
+qqnorm(CH4_time$Value); qqline(CH4_time$Value)
 #data does not follow a normal distribution- some points are way higher quantiles
 
 # Test for equal variance
 # ANOVA is robust against departures from equal variance.
 # bartlett.test() performs Bartlett's test of the null that the variances in each of the groups (samples) are the same.
-bartlett.test(Poop_CH4$Value ~ Poop_CH4$Item)
+bartlett.test(CH4_time$Value ~ CH4_time$Item)
 #results: reject null i.e. variances are not equal
 
 #not normal but deciding to proceed anyway
@@ -168,13 +193,13 @@ bartlett.test(Poop_CH4$Value ~ Poop_CH4$Item)
 
 ```{r, anova}
 # Format ANOVA as aov
-CH4.anova <- aov(data=Poop_CH4, Value ~ Item)
+CH4.anova <- aov(data=CH4_time, Value ~ Item)
 summary(CH4.anova)
 #results: reject null hypothesis i.e. difference between a pair of animals is statistically significant
 #but it's not telling us which animals aren't the same
 
 # Format ANOVA as lm
-CH4.anova2 <- lm(data=Poop_CH4, Value ~ Item)
+CH4.anova2 <- lm(data=CH4_time, Value ~ Item)
 summary(CH4.anova2)
 #intercept represents asses here
 #wow, this R2 is 99%!
@@ -197,27 +222,14 @@ CH4.groups
 #sheep, goats, ducks, asses, mules are all in same grouping
 
 # Graph the results
-Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  stat_summary(geom = "text", fun = max, vjust = -1, size = 3.5,
-               label = c("abc", "ab", "abcd", "bcd", "bcd", "a", 
-                         "d", "abcd", "cd", "d", "abcd", "abcd")) +
-  labs(x = "Plot ID", y = "Dry Mass (g)") +
-  ylim(0, 85)
-print(Litter.Totals.plot)
-
-CH4.groups.plot <- ggplot(Poop_CH4, aes(x=Item, y = Value))+
+CH4.groups.plot <- ggplot(CH4_time, aes(x=Item, y = Value))+
   geom_boxplot() + 
   theme(axis.text.x = element_text(angle=45, hjust=1))+
-  stat_summary(geom="text", fun=max, vjust=-1, size=3.5,
-               label=c("h", "b", "d", "f", "e", "h", "h", "gh", "h", "h", "c", "a", "fh"))
-  
-  
-  CH4.boxplot <- ggplot(data = Poop_CH4, aes(x=Item, y = Value))+
-  geom_boxplot()+
-  theme(axis.text.x = element_text(angle=45, hjust=1))+
-  labs(title="Average Methane Emissions by Animal", x = "Animal", y = "CH4 Emissions (gigagrams)")
+  stat_summary(geom="text", fun=max, vjust=-0.5, size=3.5,
+               label=c("h", "b", "d", "f", "e", "h", "h", "gh", "h", "h", "c", "a", "fg"), col="purple")+
+  labs(x="Animal", y = "CH4 Emissions (gigagrams)")
+CH4.groups.plot
+
 
 ```
 
