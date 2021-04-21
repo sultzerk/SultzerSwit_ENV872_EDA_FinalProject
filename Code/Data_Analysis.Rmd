@@ -74,6 +74,13 @@ CH4_cattle_dairy_mk
 #Plot time series
 plot.ts(CH4_cattle_dairy_ts)
 
+Cattle_dairy_plot <-
+ggplot(CH4_items, aes(x = Year, y = `Cattle, dairy`)) +
+  geom_line() +
+  labs(y="CH4 Emissions (gigagrams)", title="Methane Emissions for Dairy Cattle", x="Year") +
+  geom_smooth( method = lm )
+print(Cattle_dairy_plot)
+
 ```
 
 
@@ -89,13 +96,12 @@ CH4_swine_market_mk
 plot.ts(CH4_swine_market_ts)
 
 
-wind_data_plot <-
-ggplot(wind_data, aes(x = DATE, y = AWND)) +
-  geom_point() +
+Swine_market_plot <-
+ggplot(CH4_items, aes(x = Year, y = `Swine, market`)) +
   geom_line() +
-  ylab("Average Wind Speed") +
+  labs(y="CH4 Emissions (gigagrams)", title="Methane Emissions for Market Swine", x="Year") +
   geom_smooth( method = lm )
-print(wind_data_plot)
+print(Swine_market_plot)
 ```
 
 
