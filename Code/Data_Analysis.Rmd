@@ -20,7 +20,6 @@ library(Kendall)
 library(tseries)
 library(RColorBrewer)
 library(viridis)
-library(pals)
 
 
 #set theme
@@ -117,6 +116,46 @@ CH4_asses_decomposed <- stl(CH4_asses_ts, s.window = "periodic")
 #use plot.ts or ts.plot
 #pivot wider to separate items
 #trend for time series
+
+```
+
+Anova test and stuff
+```{r, anova normality tests}
+# Test for normality. 
+# Note: the important assumption for GLMs is normality of residuals, 
+# not necessarily normality of raw data. See below when we plot the model.
+# shapiro.test() performs the Shapiro-Wilk test of the null that data follows a normal distribution
+shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"])
+
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Asses"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Cattle, dairy"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Cattle, non-dairy"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Chickens, broilers"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Chickens, layers"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Goats"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Ducks"]) #normally distributed
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Horses"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Mules"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Sheep"]) #not normal
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Swine, breeding"]) #normally dist
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Swine, market"]) #normally dist
+shapiro.test(Poop_CH4$Value[Poop_CH4$Item == "Turkeys"]) #not normal
+#most of animals are not normally distributed-reject null in all but 3 cases
+
+qqnorm(Poop_CH4$Value); qqline(Poop_CH4$Value)
+#data does not follow a normal distribution- some points are way higher quantiles
+
+# Test for equal variance
+# ANOVA is robust against departures from equal variance.
+# bartlett.test() performs Bartlett's test of the null that the variances in each of the groups (samples) are the same.
+bartlett.test(Poop_CH4$Value ~ Poop_CH4$Item)
+#results: reject null i.e. variances are not equal
+
+#not normal but deciding to proceed anyway
+```
+
+```{r, anova}
+
 
 ```
 

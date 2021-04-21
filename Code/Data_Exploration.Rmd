@@ -1,6 +1,8 @@
 ---
 title: "Data Exploration"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -44,7 +46,7 @@ unique(Poop_CH4$Item)
 
 **Variables** | **Units** | **Ranges** | **Central Tendencies**
 ----------------- | -------------------------- | --------------------- | ----------------
-Methane Emissions | gigagrams CH4 | 0-670.9518  | 102.2441
+Total Methane Emissions | gigagrams CH4 | 0-670.9518  | 102.2441
 Item | Animal | 13 animals: asses, cattle, chicken, ducks, goats, horses, mules, sheep, swine, turkey
 Time | years | 1980-2050 (predicted 2030 and 2050)
 
@@ -101,9 +103,8 @@ Stock_nochix <- Stocks %>%
 
 Stock_plot_nochix <- ggplot(Stock_nochix, aes(x=Year, y=Value, color=Item))+
   geom_line(size=1.1)+
-  labs(y="Stocks (head)", title = "Livestock Over Time", col="Animal")
+  labs(y="Stocks (head)", title = "Livestock Over Time (Without Chickens)", col="Animal")
 print(Stock_plot_nochix)
-
 
 
 ```
