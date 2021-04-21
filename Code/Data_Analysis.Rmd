@@ -67,7 +67,7 @@ print(CH4_plot)
 ```
 
 ```{r Time.Series.Cattle.Dairy}
-#Create time series component dor dairy cattle
+#Create time series component for dairy cattle
 CH4_cattle_dairy_ts <- ts(CH4_items$`Cattle, dairy`, start=1980, end=2018)
 
 #Run Mann-Kendall test to test for trend
