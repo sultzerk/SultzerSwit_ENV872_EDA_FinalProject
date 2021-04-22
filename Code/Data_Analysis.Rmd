@@ -134,11 +134,6 @@ Total_ts_mk #low p-value so there is a trend!
 
 
 ```{r}
-CH4_asses <- CH4_time %>% 
-  filter(Item=="Asses")
-
-CH4_asses_ts <- ts(CH4_asses$Value, start=1980, end=2018, frequency=1)
-CH4_asses_decomposed <- stl(CH4_asses_ts, s.window = "periodic")
 
 #use a cowplot
 #use plot.ts or ts.plot
@@ -227,7 +222,7 @@ CH4.groups.plot <- ggplot(CH4_time, aes(x=Item, y = Value))+
   theme(axis.text.x = element_text(angle=45, hjust=1))+
   stat_summary(geom="text", fun=max, vjust=-0.5, size=3.5,
                label=c("h", "b", "d", "f", "e", "h", "h", "gh", "h", "h", "c", "a", "fg"), col="purple")+
-  labs(x="Animal", y = "CH4 Emissions (gigagrams)")
+  labs(x="Animal", y = "CH4 Emissions (gigagrams)", title ="Average Methane Emissions by Animal")
 CH4.groups.plot
 
 
