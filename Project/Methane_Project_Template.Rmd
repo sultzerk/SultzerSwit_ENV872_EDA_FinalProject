@@ -23,27 +23,43 @@ mainfont: Times New Roman
 
 ```{r setup, include=FALSE}
 # Set your working directory
+getwd()
 
 # Load your packages
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(trend)
+library(Kendall)
+library(agricolae)
 
 # Set your ggplot theme
+mytheme <- theme_classic(base_size = 14) + 
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "right", 
+        legend.box.background = element_rect(color="black"), legend.background = element_blank(),  
+        plot.title=element_text(hjust = 0.5))
+#makes font size bigger, puts legend on right, puts box around legend, centers title in middle
+theme_set(mytheme) #setting for all subsequent plots
 
 # Load your datasets
-
+Poop_raw <- read.csv("../Data/Raw/FAOSTAT_data_1980_2050.csv", stringsAsFactors = TRUE) 
 ```
 
 
 # Rationale and Research Questions
 
+For this project, we were interested in manure management and greenhouse gas emissions created by livestock.  Our initial dataset considered methane, nitrous oxide, and carbon dioxide. Research revealed that "livestock are reckoned to be responsible for up to 14% of all greenhouse emissions from human activities" (BBC article).  With such a substantial amount of human activities, we wanted to see how livestock factored into emissions. When considering different emissions types, we focused on methane because methane is a very detrimental greenhouse gas: it traps heat at a rate 25 times greater than carbon dioxide (BBC article).  Methane gas explored here is produced by the anaerobic decomposition of manure stored or treated.  
+
 Question:
 
-_*STEP 1: Have methane emissions gone up?*_
+_*Question 1: Have methane emissions changed over time?*_
 
 * Create time series of methane produced by one or two livestock for general trend
 + Use CH4 emissions variable – want to see if the gigagrams of methane have increased over time 
 + Filter for one element for time series?
 
-_* STEP 2:*_
+_* Question 2: Does the average methane emissions rate differ between each animal category?*_
 Specifically:
 
 * Is there a difference in rate produced by each animal? Looking for statistical difference between the rates of different livestock
@@ -56,6 +72,8 @@ Specifically:
 
 # Dataset Information
 
+Dataset used for this project was found from the Food & Agriculture Organization of the United Nations (FAO), specifically from FAOSTAT.  FAOSTAT provides free access to statistics pertaining to agriculture and for over 245 countries.  For this analysis, we focused on emissions in the United States. *more info on how data was collected*
+
 Metadata!
 
 **Remember to create README file
@@ -64,6 +82,12 @@ Metadata!
 \newpage
 
 # Exploratory Analysis 
+
+First, we viewed a summary of our data to decide how to pare it down and wrangle it. 
+```{r}
+summary(Poop_raw)
+```
+
 
 Data wrangling steps
 
@@ -93,4 +117,5 @@ Include normality test results
 \newpage
 
 # References
+BBC citation article: https://www.bbc.com/future/article/20190806-how-vaccines-could-fix-our-problem-with-cow-emissions
 <add references here if relevant, otherwise delete this section> 
