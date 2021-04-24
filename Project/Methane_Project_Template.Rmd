@@ -56,11 +56,18 @@ Specifically:
 
 # Dataset Information
 
+Metadata!
 
+**Remember to create README file
+**remmber to write csv's for all processed data
 
 \newpage
 
 # Exploratory Analysis 
+
+Data wrangling steps
+
+Basic visualizations
 
 
 
@@ -68,11 +75,10 @@ Specifically:
 
 # Analysis
 
+Nadia: Time series
+Kendra: ANOVA and grouping
 
 
-## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
-
-## Question 2: 
 
 
 
@@ -81,6 +87,8 @@ Specifically:
 
 # Summary and Conclusions
 
+Conclusions from time series and ANOVA
+Include normality test results
 
 \newpage
 
