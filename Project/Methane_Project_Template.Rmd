@@ -5,9 +5,9 @@ output:
     fig_caption: yes
     number_sections: yes
 geometry: margin=2.54cm
-title: "Insert title of project here"
-subtitle: "Web address for GitHub repository"
-author: "Name"
+title: "Methane Emissions Status for Manure Management across USA"
+subtitle: "https://github.com/sultzerk/SultzerSwit_ENV872_EDA_FinalProject.git"
+author: "Nadia Swit and Kendra Sultzer"
 fontsize: 12pt
 mainfont: Times New Roman
 
@@ -22,7 +22,7 @@ mainfont: Times New Roman
 \newpage
 
 ```{r setup, include=FALSE}
-# Set your working directory
+# Get your working directory
 getwd()
 
 # Load your packages
@@ -76,6 +76,7 @@ Dataset used for this project was found from the Food & Agriculture Organization
 
 Metadata!
 
+**what values should be in the table? total dataset or just specific to methane and our years?
 **Remember to create README file
 **remmber to write csv's for all processed data
 
@@ -83,21 +84,158 @@ Metadata!
 
 # Exploratory Analysis 
 
+## Data wrangling steps
+
 First, we viewed a summary of our data to decide how to pare it down and wrangle it. 
-```{r}
+```{r, include=FALSE}
 summary(Poop_raw)
+```
+We wanted to make our dataset more manageable, so we filtered for the specific columns we wanted to retain, the variable we were interested in (methane emissions), and only focused on the past years.  
+
+
+
+```{r, wrangling, include=FALSE}
+#data wrangling
+CH4_time <- Poop_raw %>% 
+  select(Element, Item, Year:Value)%>%  #filtering for just the columns we want 
+  filter(Element == "Emissions (CH4) (Manure management)")%>%  #filtering for only total CH4 (methane)
+  filter(Year %in% c(1980:2018)) #filter to remove projected years
+#saving processed data
+write.csv(CH4_time, file = "../Data/Processed/CH4_time.csv", row.names=FALSE)
 ```
 
 
-Data wrangling steps
+## Basic visualizations
 
-Basic visualizations
+First, when considering our first research question, we wanted to see how methane emissions appear over time.  When combining all animals, we can see there is a general increasing trend over time (Figure 1). However, there is a sharp decrease in methane emissions at the beginning of the dataset (~1980-1985) that might warrent investigation later. For our analysis, we wanted to investigate whether this trend was significant. 
 
+```{r, fig.cap="Methane Emissions Over Time", echo=FALSE, message=FALSE, warning=FALSE}
+#making filtered dataset for averages
+Total.CH4.allyears <- CH4_time %>% 
+  group_by(Year) %>% 
+  summarise(Mean.Methane=mean(Value),
+            Sum.Methane=sum(Value))
+
+#saving processed data
+write.csv(Total.CH4.allyears, file="../Data/Processed/CH4_allyears.csv", row.names = FALSE)
+
+#view lineplot
+CH4.average.plot <- ggplot(data=Total.CH4.allyears,aes(x=Year, y=Sum.Methane))+
+  geom_line()+
+  geom_smooth(method = lm )+
+  labs(y="Total CH4 (gg)", title="Methane Emissions Over Time")+
+  scale_y_continuous(limits = c(1200,1500))
+CH4.average.plot
+
+```
+
+Our second research question focused on the different emission rates between animals. We were curious about this question when we explored a boxplot showing the different rates (Figure 2). According to this boxplot, we suspected that there might be statistical differences since for, example: dairy cattle and market swine had higher rates than others. 
+
+```{r, viewing boxplot of methane by animal, fig.cap="Average Methane Emissions by Animal", message=FALSE, warning=FALSE, echo=FALSE}
+CH4.boxplot <- ggplot(data = CH4_time, aes(x=Item, y = Value))+
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  labs(title="Average Methane Emissions by Animal", x = "Animal", y = "CH4 Emissions (gg)")
+CH4.boxplot
+```
 
 
 \newpage
 
 # Analysis
+
+## Research Question 1
+
+To answer our first research question, we conducted a time series on the overall methane production for all livestock.  Since methane was only calculated once a year, there was no seasonality to our data, and we were not able to decompose our time series. However, we conducted a Mann-Kendall test, which confirmed that there was a significant trend (p-value < 0.05). From our data exploration, we can say that overall that trend is increasing: methane emissions between 1980 and 2018 have increased across 13 livestock in the United States.  
+
+```{r, include=FALSE}
+#running time series
+Total_ts <- ts(Total.CH4.allyears$Sum.Methane, start=1980, end=2018)
+
+#run Mann-Kendall test to test for trend
+Total_ts_mk <- mk.test(Total_ts)
+Total_ts_mk #low p-value so there is a trend!
+```
+
+## Research Question 2
+To answer the second research question, we conducted a one-way ANOVA test to evaluate whether the different animals, on average, have different emission rates.  To begin this process, we had to test the emission rates for normality.  The important assumption for generalized linear models is the normality of residuals.  The Shapiro-Wilk test showed that, of the 13 livestock, only ducks, breeding swine, and market swine were normally distributed. When viewing a Q-Q plot, once can see the data does not follow a normal distribution (Figure 3). Lastly, Bartlett's test for homogeneity of variances was run, which revealed that the variances were not equal (p < 0.05).  Even though all of the tests for normality failed, we proceeded on with the analysis.  
+
+```{r, anova normality test, include=FALSE}
+# Test for normality. 
+# Note: the important assumption for GLMs is normality of residuals, 
+# not necessarily normality of raw data. See below when we plot the model.
+# shapiro.test() performs the Shapiro-Wilk test of the null that data follows a normal distribution
+
+shapiro.test(CH4_time$Value[CH4_time$Item == "Asses"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Cattle, dairy"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Cattle, non-dairy"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Chickens, broilers"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Chickens, layers"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Goats"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Ducks"]) #normally distributed
+shapiro.test(CH4_time$Value[CH4_time$Item == "Horses"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Mules"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Sheep"]) #not normal
+shapiro.test(CH4_time$Value[CH4_time$Item == "Swine, breeding"]) #normally dist
+shapiro.test(CH4_time$Value[CH4_time$Item == "Swine, market"]) #normally dist
+shapiro.test(CH4_time$Value[CH4_time$Item == "Turkeys"]) #not normal
+#most of animals are not normally distributed-reject null in all but 3 cases
+
+# Test for equal variance
+# ANOVA is robust against departures from equal variance.
+# bartlett.test() performs Bartlett's test of the null that the variances in each of the groups (samples) are the same.
+bartlett.test(CH4_time$Value ~ CH4_time$Item)
+#results: reject null i.e. variances are not equal
+
+```
+
+```{r, echo=FALSE, fig.cap="QQ plot"}
+qqnorm(CH4_time$Value); qqline(CH4_time$Value)
+#data does not follow a normal distribution- some points are way higher quantiles
+#not normal but deciding to proceed anyway
+```
+
+Our analysis then revealed that there was a significant difference in mean emissions among animals (ANOVA; F: 4394 on 12 and 494 DF,p<0.05).  But which animals had different means? A Tukey's HSD test helped show which means were different between the animals.  We extracted groupings for pair-wise relationships where the letters in Figure 4 represent the different groupings.  Thus, asses, ducks, goats, mules, and sheep all had statistically similar emission rates (Figure 4). Most of the other animals, such as market swine and dairy cattle, have their own grouping. 
+
+```{r, anova, include=FALSE}
+# Format ANOVA as aov
+CH4.anova <- aov(data=CH4_time, Value ~ Item)
+summary(CH4.anova)
+#results: reject null hypothesis i.e. difference between a pair of animals is statistically significant
+#but it's not telling us which animals aren't the same
+
+# Format ANOVA as lm
+CH4.anova2 <- lm(data=CH4_time, Value ~ Item)
+summary(CH4.anova2)
+#intercept represents asses here
+#wow, this R2 is 99%!
+
+# Checking model fit and assumptions
+# ANOVA is not? robust against departures from normality.
+plot(CH4.anova2)
+
+# Post-hoc test
+# TukeyHSD() computes Tukey Honest Significant Differences
+TukeyHSD(CH4.anova)
+#outputs all of differences for sites-pvalue for multiple comparisons
+
+# Extract groupings for pairwise relationships
+CH4.groups <- HSD.test(CH4.anova, "Item", group = TRUE)
+CH4.groups
+#sheep, goats, ducks, asses, mules are all in same grouping
+```
+
+```{r, anova results, echo=FALSE, fig.cap="Animal Groupings of Methane Emissions"}
+# Graph the results
+CH4.groups.plot <- ggplot(CH4_time, aes(x=Item, y = Value))+
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  stat_summary(geom="text", fun=max, vjust=-0.5, size=3.5,
+               label=c("h", "b", "d", "f", "e", "h", "h", "gh", "h", "h", "c", "a", "fg"), col="purple")+
+  labs(x="Animal", y = "CH4 Emissions (gigagrams)", title ="Animal Groupings of Methane Emissions")
+CH4.groups.plot
+```
+
 
 Nadia: Time series
 Kendra: ANOVA and grouping

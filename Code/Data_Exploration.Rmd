@@ -55,6 +55,7 @@ Time | years | 1980-2050 (predicted 2030 and 2050)
 CH4_time <- Poop_CH4 %>% 
   filter(Year %in% c(1980:2018))
 
+
 #simple visualization of methane emissions from animals 
 CH4_plot <- ggplot(CH4_time, aes(x=Year, y=Value, color=Item))+
   geom_line(size=1.1)+

@@ -39,8 +39,8 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={Insert title of project here},
-  pdfauthor={Name},
+  pdftitle={Methane Emissions Status for Manure Management across USA},
+  pdfauthor={Nadia Swit and Kendra Sultzer},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
@@ -66,15 +66,15 @@
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{Insert title of project here}
+\title{Methane Emissions Status for Manure Management across USA}
 \usepackage{etoolbox}
 \makeatletter
 \providecommand{\subtitle}[1]{% add subtitle to \maketitle
   \apptocmd{\@title}{\par {\large #1 \par}}{}{}
 }
 \makeatother
-\subtitle{Web address for GitHub repository}
-\author{Name}
+\subtitle{\url{https://github.com/sultzerk/SultzerSwit_ENV872_EDA_FinalProject.git}}
+\author{Nadia Swit and Kendra Sultzer}
 \date{}
 
 \begin{document}
@@ -150,22 +150,108 @@ the United States. \emph{more info on how data was collected}
 
 Metadata!
 
-\textbf{Remember to create README file }remmber to write csv's for all
-processed data
+\textbf{what values should be in the table? total dataset or just
+specific to methane and our years? }Remember to create README file
+**remmber to write csv's for all processed data
 
 \newpage
 
 \hypertarget{exploratory-analysis}{%
 \section{Exploratory Analysis}\label{exploratory-analysis}}
 
-Data wrangling steps
+\hypertarget{data-wrangling-steps}{%
+\subsection{Data wrangling steps}\label{data-wrangling-steps}}
 
-Basic visualizations
+First, we viewed a summary of our data to decide how to pare it down and
+wrangle it.
+
+We wanted to make our dataset more manageable, so we filtered for the
+specific columns we wanted to retain, the variable we were interested in
+(methane emissions), and only focused on the past years.
+
+\hypertarget{basic-visualizations}{%
+\subsection{Basic visualizations}\label{basic-visualizations}}
+
+First, when considering our first research question, we wanted to see
+how methane emissions appear over time. When combining all animals, we
+can see there is a general increasing trend over time (Figure 1).
+However, there is a sharp decrease in methane emissions at the beginning
+of the dataset (\textasciitilde1980-1985) that might warrent
+investigation later. For our analysis, we wanted to investigate whether
+this trend was significant.
+
+\begin{figure}
+\centering
+\includegraphics{Methane_Project_Template_files/figure-latex/unnamed-chunk-2-1.pdf}
+\caption{Methane Emissions Over Time}
+\end{figure}
+
+Our second research question focused on the different emission rates
+between animals. We were curious about this question when we explored a
+boxplot showing the different rates (Figure 2). According to this
+boxplot, we suspected that there might be statistical differences since
+for, example: dairy cattle and market swine had higher rates than
+others.
+
+\begin{figure}
+\centering
+\includegraphics{Methane_Project_Template_files/figure-latex/viewing boxplot of methane by animal-1.pdf}
+\caption{Average Methane Emissions by Animal}
+\end{figure}
 
 \newpage
 
 \hypertarget{analysis}{%
 \section{Analysis}\label{analysis}}
+
+\hypertarget{research-question-1}{%
+\subsection{Research Question 1}\label{research-question-1}}
+
+To answer our first research question, we conducted a time series on the
+overall methane production for all livestock. Since methane was only
+calculated once a year, there was no seasonality to our data, and we
+were not able to decompose our time series. However, we conducted a
+Mann-Kendall test, which confirmed that there was a significant trend
+(p-value \textless{} 0.05). From our data exploration, we can say that
+overall that trend is increasing: methane emissions between 1980 and
+2018 have increased across 13 livestock in the United States.
+
+\hypertarget{research-question-2}{%
+\subsection{Research Question 2}\label{research-question-2}}
+
+To answer the second research question, we conducted a one-way ANOVA
+test to evaluate whether the different animals, on average, have
+different emission rates. To begin this process, we had to test the
+emission rates for normality. The important assumption for generalized
+linear models is the normality of residuals. The Shapiro-Wilk test
+showed that, of the 13 livestock, only ducks, breeding swine, and market
+swine were normally distributed. When viewing a Q-Q plot, once can see
+the data does not follow a normal distribution (Figure 3). Lastly,
+Bartlett's test for homogeneity of variances was run, which revealed
+that the variances were not equal (p \textless{} 0.05). Even though all
+of the tests for normality failed, we proceeded on with the analysis.
+
+\begin{figure}
+\centering
+\includegraphics{Methane_Project_Template_files/figure-latex/unnamed-chunk-4-1.pdf}
+\caption{QQ plot}
+\end{figure}
+
+Our analysis then revealed that there was a significant difference in
+mean emissions among animals (ANOVA; F: 4394 on 12 and 494
+DF,p\textless0.05). But which animals had different means? A Tukey's HSD
+test helped show which means were different between the animals. We
+extracted groupings for pair-wise relationships where the letters in
+Figure 4 represent the different groupings. Thus, asses, ducks, goats,
+mules, and sheep all had statistically similar emission rates (Figure
+4). Most of the other animals, such as market swine and dairy cattle,
+have their own grouping.
+
+\begin{figure}
+\centering
+\includegraphics{Methane_Project_Template_files/figure-latex/anova results-1.pdf}
+\caption{Animal Groupings of Methane Emissions}
+\end{figure}
 
 Nadia: Time series Kendra: ANOVA and grouping
 
