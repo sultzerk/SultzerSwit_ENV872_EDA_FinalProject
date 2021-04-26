@@ -45,6 +45,16 @@
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=2.54cm]{geometry}
+\usepackage{longtable,booktabs}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -83,10 +93,18 @@
 \newpage
 \tableofcontents 
 \newpage
-\listoftables 
-\newpage
-\listoffigures 
-\newpage
+
+\textbf{List of Tables}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Table 1: Structure of Variables of Interest in Analysis \newpage
+
+  \listoffigures 
+  \newpage
+\end{enumerate}
 
 \hypertarget{rationale-and-research-questions}{%
 \section{Rationale and Research
@@ -125,9 +143,66 @@ agriculture for over 245 countries. For this analysis, we focused on
 emissions in the United States. \emph{more info on how data was
 collected}
 
-\textbf{what values should be in the table? total dataset or just
-specific to methane and our years? do all the things }Remember to create
-README file **remmber to write csv's for all processed data
+\hypertarget{data-structure}{%
+\subsection{Data Structure}\label{data-structure}}
+
+\textbf{Table 1: Structure of Variables of Interest in Analysis}
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule
+\begin{minipage}[b]{(\columnwidth - 3\tabcolsep) * \real{0.21}}\raggedright
+\textbf{Variables}\strut
+\end{minipage} &
+\begin{minipage}[b]{(\columnwidth - 3\tabcolsep) * \real{0.32}}\raggedright
+\textbf{Units}\strut
+\end{minipage} &
+\begin{minipage}[b]{(\columnwidth - 3\tabcolsep) * \real{0.26}}\raggedright
+\textbf{Ranges}\strut
+\end{minipage} &
+\begin{minipage}[b]{(\columnwidth - 3\tabcolsep) * \real{0.20}}\raggedright
+\textbf{Central Tendencies}\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.21}}\raggedright
+Total Methane Emissions\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.32}}\raggedright
+gigagrams CH4\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.26}}\raggedright
+0-670.9518\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.20}}\raggedright
+102.2441\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.21}}\raggedright
+Item\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.32}}\raggedright
+Animal\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.26}}\raggedright
+13 animals: asses, cattle, chicken, ducks, goats, horses, mules, sheep,
+swine, turkey\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.20}}\raggedright
+\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.21}}\raggedright
+Time\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.32}}\raggedright
+years\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.26}}\raggedright
+1980-2050 (predicted 2030 and 2050)\strut
+\end{minipage} &
+\begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.20}}\raggedright
+\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
 
 \newpage
 
@@ -191,6 +266,24 @@ others.
 \caption{Average Methane Emissions by Animal}
 \end{figure}
 
+Additionally, to understand how the number of animals can influence
+total methane emissions, we visualized how head of animals differed
+between livestock category.Total livestock was visualized in Figure 4.
+To control for the the higher proportion of chickens, we removed them
+from the plot in Figure 5.
+
+\begin{figure}
+\centering
+\includegraphics{Methane_Project_Template_files/figure-latex/animal.head-1.pdf}
+\caption{Livestock Over Time}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Methane_Project_Template_files/figure-latex/no.chix-1.pdf}
+\caption{Livestock Over Time (Without Chickens)}
+\end{figure}
+
 \newpage
 
 \hypertarget{analysis}{%
@@ -212,42 +305,21 @@ From visualizing the total emission rates, dairy cattle and market swine
 showed the highest emission rates. We also decided to conduct a time
 series analysis to determine if there was a significant trend. The
 Mann-Kendall test confirmed that a significant trend was present for
-both animals (p-value \textless{} 0.05).
+both animals (p-value \textless{} 0.05). Dairy cattle (Figure 7) had an
+overall negative trend in emissions while market swine had a positive
+trend (Figure 8).
 
-\begin{verbatim}
-## `geom_smooth()` using formula 'y ~ x'
-\end{verbatim}
-
+\begin{figure}
+\centering
 \includegraphics{Methane_Project_Template_files/figure-latex/dairy.cattle.ts-1.pdf}
+\caption{Methane Emissions of Dairy Cattle}
+\end{figure}
 
-\begin{verbatim}
-## `geom_smooth()` using formula 'y ~ x'
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 rows containing non-finite values (stat_smooth).
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 row(s) containing missing values (geom_path).
-\end{verbatim}
-
+\begin{figure}
+\centering
 \includegraphics{Methane_Project_Template_files/figure-latex/market.swine.ts-1.pdf}
-
-\begin{verbatim}
-## `geom_smooth()` using formula 'y ~ x'
-## `geom_smooth()` using formula 'y ~ x'
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 rows containing non-finite values (stat_smooth).
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 row(s) containing missing values (geom_path).
-\end{verbatim}
-
-\includegraphics{Methane_Project_Template_files/figure-latex/plot.grid-1.pdf}
+\caption{Methane Emissions of Market Swine}
+\end{figure}
 
 \hypertarget{research-question-2}{%
 \subsection{Research Question 2}\label{research-question-2}}
@@ -320,15 +392,19 @@ reducing methane producing microbes(Bustamante, 2008).
 \hypertarget{references}{%
 \section{References}\label{references}}
 
-BBC citation article:
+Bustamante, J. (2008, July 8). Cow burps help Argentines study climate
+change. Reuters.
+\url{https://www.reuters.com/article/us-argentina-cows/cow-burps-help-argentines-study-climate-change-idUSN0830630220080709}.
+
+FAO (2020). FAOSTAT Emissions Database, Agriculture, Manure Management
+{[}Data set{]}. \url{http://www.fao.org/faostat/en/\#data/GM}
+
+Horn, P. (2018, October 24). Livestock-based methane emissions
+{[}Infographic{]}. Inside Climate News; EPA; FAO.
+\url{https://insideclimatenews.org/news/24102018/infographic-farm-soil-carbon-cycle-climate-change-solution-agriculture/}
+
+Watts, G. (2019, August 6). The cows that could help fight climate
+change. BBC.
 \url{https://www.bbc.com/future/article/20190806-how-vaccines-could-fix-our-problem-with-cow-emissions}
-\textless add references here if relevant, otherwise delete this
-section\textgreater{} \^{}\^{}author??
-
-Add Horn citation for cow graphic
-
-Cite FAO
-
-Cow burps (Bustmanete, 2008)
 
 \end{document}
