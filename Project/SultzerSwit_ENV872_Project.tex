@@ -112,25 +112,25 @@
 \section{Rationale and Research
 Questions}\label{rationale-and-research-questions}}
 
-For this project, we were interested in manure management and greenhouse
-gas emissions created by livestock. Our initial dataset considered
-methane, nitrous oxide, and carbon dioxide. Research revealed that
-``livestock are reckoned to be responsible for up to 14\% of all
-greenhouse emissions from human activities'' (BBC article). With such a
-substantial amount of human activities, we wanted to see how livestock
-factored into emissions. When considering different emission types, we
-focused on methane because methane is a very detrimental greenhouse gas:
-it traps heat at a rate 25 times greater than carbon dioxide (Watts
-2019). Methane gas explored here is produced by the anaerobic
-decomposition of manure stored or treated. Our research and data
-availability led us to these two research questions:
+For this project, the area of interest was manure management and
+greenhouse gas emissions created by livestock. The initial dataset
+considered methane, nitrous oxide, and carbon dioxide. Research revealed
+that ``livestock are reckoned to be responsible for up to 14\% of all
+greenhouse emissions from human activities'' (Watts, 2019). Considering
+the magnitude of industrial agriculture, we wanted to see how livestock
+factored into emissions. When examining different emission types, this
+study focused on methane because it is a very detrimental greenhouse
+gas, trapping heat at a rate 25 times greater than carbon dioxide
+(Watts, 2019). Pertaining to this study, methane gas is produced by the
+anaerobic decomposition of manure stored or treated. Research and data
+availability led to these two research questions:
 
 \begin{itemize}
 \item
   Question 1: Have methane emissions changed over time?
 \item
-  Question 2: Does the average methane emissions rate differ between
-  each animal category?
+  Question 2: Does the average methane emission rate differ between
+  livestock?
 \end{itemize}
 
 \newpage
@@ -141,9 +141,30 @@ availability led us to these two research questions:
 The dataset used for this project was retrieved from the Food \&
 Agriculture Organization of the United Nations (FAO), specifically from
 FAOSTAT. FAOSTAT provides free access to statistics pertaining to
-agriculture for over 245 countries. For this analysis, we focused on
-emissions in the United States. \emph{more info on how data was
-collected}
+agriculture for over 245 countries. This analysis focused on emissions
+in the United States. Emissions were computed following the 2006
+Guidelines for National GHG Inventories of the Intergovernmental Panel
+on Climate Change (IPCC). Methane emissions were estimated at the
+country level by multiplying the number of livestock in heads by the
+IPCC emission factors (FAO, 2020).
+
+\hypertarget{data-wrangling-steps}{%
+\subsection{Data Wrangling Steps}\label{data-wrangling-steps}}
+
+The first step of data wrangling was viewing a summary of the full raw
+data to determine how to best filter it for our research question needs.
+
+Next, to make the dataset more manageable, specific columns to retain
+were filtered. The main variable of interest, methane emissions, was
+included, and we only focused on historical data.
+
+In order to effectively conduct a time series analysis, we grouped by
+years and summarized the mean methane emissions for all livestock.
+
+Next, the pivot\_wider function was used to separate the livestock from
+the same column into separate variables with their associated methane
+emission values. This allowed separate time series to be run on the
+desired livestock.
 
 \hypertarget{data-structure}{%
 \subsection{Data Structure}\label{data-structure}}
@@ -170,7 +191,7 @@ collected}
 Total Methane Emissions\strut
 \end{minipage} &
 \begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.32}}\raggedright
-gigagrams CH4\strut
+gigagrams (gg) CH4\strut
 \end{minipage} &
 \begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.26}}\raggedright
 0-670.9518\strut
@@ -198,7 +219,7 @@ Time\strut
 years\strut
 \end{minipage} &
 \begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.26}}\raggedright
-1980-2050 (predicted 2030 and 2050)\strut
+1980-2018 (predicted 2030 and 2050)\strut
 \end{minipage} &
 \begin{minipage}[t]{(\columnwidth - 3\tabcolsep) * \real{0.20}}\raggedright
 \strut
@@ -211,78 +232,57 @@ years\strut
 \hypertarget{exploratory-analysis}{%
 \section{Exploratory Analysis}\label{exploratory-analysis}}
 
-\hypertarget{data-wrangling-steps}{%
-\subsection{Data wrangling steps}\label{data-wrangling-steps}}
-
-First, we viewed a summary of our data to decide how to pare it down and
-wrangle it.
-
-We wanted to make our dataset more manageable, so we filtered for the
-specific columns we wanted to retain, the variable we were interested in
-(methane emissions), and only focused on historical data.
-
-In order effectively conduct a time series analysis, we made all the
-different livestock their own variables. We used the pivot\_wider
-function to separate the livestock from the Items column into separate
-variables with their associated methane emission values. This allowed
-separate time series to be run on the desired livestock species.
-
-\hypertarget{basic-visualizations}{%
-\subsection{Basic visualizations}\label{basic-visualizations}}
-
-First, when considering our first research question, we wanted to see
-how methane emissions appear over time. When combining all animals, we
-can see there is a general increasing trend over time (Figure 1).
-However, there is a sharp decrease in methane emissions at the beginning
-of the dataset (\textasciitilde1980-1985) that might warrant
-investigation later. For our analysis, we wanted to investigate whether
-this trend was significant.
+When considering our first research question, it is apparent there is a
+general increasing trend over time (Figure 1). Analysis focused on
+investigating whether this trend was significant. There is a sharp
+decrease in methane emissions at the beginning of the dataset
+(\textasciitilde1980-1985) that might warrant investigation later.
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/unnamed-chunk-2-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/unnamed-chunk-2-1.pdf}
 \caption{Methane Emissions Over Time}
 \end{figure}
 
-We were also interested in the total emissions per animal. We visualized
-total methane emissions for each animal from 1980-2018 (Figure 2). It is
-evident that dairy cattle and market swine had the highest emission
-rates.
+We also visualized total methane emissions for each animal from
+1980-2018 (Figure 2). It is evident that dairy cattle and market swine
+had the highest emission rates. Analysis focused on investigating
+whether these two livestock had significant emission trends.
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/unnamed-chunk-3-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/unnamed-chunk-3-1.pdf}
 \caption{Methane Emissions by Animals}
 \end{figure}
 
 Our second research question focused on the different emission rates
-between animals. We were curious about this question when we explored a
-boxplot showing the different rates (Figure 2). According to this
-boxplot, we suspected that there might be statistical differences since
-for, example: dairy cattle and market swine had higher rates than
-others.
+between animals. When exploring a boxplot showing the different rates
+(Figure 3), it is suspected that there might be statistical differences.
+For example, dairy cattle and market swine had much higher rates than
+others. Analysis focused on investigating which rates were statistically
+different from others.
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/viewing boxplot of methane by animal-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/viewing boxplot of methane by animal-1.pdf}
 \caption{Average Methane Emissions by Animal}
 \end{figure}
 
 Additionally, to understand how the number of animals can influence
 total methane emissions, we visualized how head of animals differed
-between livestock category.Total livestock was visualized in Figure 4.
+between livestock category. Total livestock was visualized in Figure 4.
 To control for the the higher proportion of chickens, we removed them
 from the plot in Figure 5.
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/animal.head-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/animal.head-1.pdf}
 \caption{Livestock Over Time}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/no.chix-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/no.chix-1.pdf}
 \caption{Livestock Over Time (Without Chickens)}
 \end{figure}
 
@@ -294,69 +294,70 @@ from the plot in Figure 5.
 \hypertarget{research-question-1}{%
 \subsection{Research Question 1}\label{research-question-1}}
 
-To answer our first research question, we conducted a time series on the
-overall methane production for all livestock. Since methane was only
-calculated once a year, there was no seasonality to our data, and we
-were not able to decompose our time series. However, we conducted a
-Mann-Kendall test, which confirmed that there was a significant trend
-(p-value \textless{} 0.05). From our data exploration, we can say that
-overall the trend is increasing: methane emissions between 1980 and 2018
-have increased across 13 livestock in the United States.
+To answer the first research question, the overall methane production
+for all livestock was evaluated with a time series analysis. Since
+methane was only calculated once a year, there was no seasonality to the
+data, and the time series was not able to be decomposed. However, a
+Mann-Kendall test was performed, which confirmed that there was a
+significant trend (p-value = 0.00011). From data exploration, it can be
+seen that overall the trend is increasing: methane emissions between
+1980 and 2018 have increased across 13 livestock in the United States
+(Figure 1).
 
 From visualizing the total emission rates, dairy cattle and market swine
-showed the highest emission rates. We also decided to conduct a time
-series analysis to determine if there was a significant trend. The
-Mann-Kendall test confirmed that a significant trend was present for
-both animals (p-value \textless{} 0.05). Dairy cattle (Figure 7) had an
-overall negative trend in emissions while market swine had a positive
-trend (Figure 8).
+showed the highest emission rates. A time series analysis was conducted
+to determine if there was a significant trend. The Mann-Kendall test
+confirmed that a significant trend was present for both animals (p-value
+for cattle \textless{} 0.001, p-value for swine \textless{} 0.001).
+Dairy cattle (Figure 6) had an overall negative trend in emissions while
+market swine had a positive trend (Figure 7).
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/dairy.cattle.ts-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/dairy.cattle.ts-1.pdf}
 \caption{Methane Emissions of Dairy Cattle}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/market.swine.ts-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/market.swine.ts-1.pdf}
 \caption{Methane Emissions of Market Swine}
 \end{figure}
 
 \hypertarget{research-question-2}{%
 \subsection{Research Question 2}\label{research-question-2}}
 
-To answer the second research question, we conducted a one-way ANOVA
-test to evaluate whether the different animals, on average, have
-different emission rates. To begin this process, we had to test the
-emission rates for normality. The important assumption for generalized
-linear models is the normality of residuals. The Shapiro-Wilk test
-showed that, of the 13 livestock, only ducks, breeding swine, and market
-swine were normally distributed. When viewing a Q-Q plot, once can see
-the data does not follow a normal distribution (Figure 3). Lastly,
-Bartlett's test for homogeneity of variances was run, which revealed
-that the variances were not equal (p \textless{} 0.05). Even though all
-of the tests for normality failed, we proceeded on with the analysis.
+To answer the second research question, a one-way ANOVA test was
+conducted to evaluate whether the different animals, on average, have
+different emission rates. To begin this process, the emission rates were
+checked for normality. The important assumption for generalized linear
+models is the normality of residuals. The Shapiro-Wilk test showed that,
+of the 13 livestock, only ducks, breeding swine, and market swine were
+normally distributed. When viewing a Q-Q plot, once can see the data
+does not follow a normal distribution (Figure 8). Lastly, Bartlett's
+test for homogeneity of variances was run, which revealed that the
+variances were not equal (p \textless{} 0.001). Even though all of the
+tests for normality failed, we proceeded on with the analysis.
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/unnamed-chunk-4-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/unnamed-chunk-4-1.pdf}
 \caption{QQ plot}
 \end{figure}
 
-Our analysis then revealed that there was a significant difference in
-mean emissions among animals (ANOVA; F: 4394 on 12 and 494
+Analysis then revealed that there was a significant difference in mean
+emissions among animals (ANOVA; F: 4394 on 12 and 494
 DF,p\textless0.05). But which animals had different means? A Tukey's HSD
-test helped show which means were different between the animals. We
-extracted groupings for pair-wise relationships where the letters in
-Figure 4 represent the different groupings. Thus, asses, ducks, goats,
-mules, and sheep all had statistically similar emission rates (Figure
-4). Most of the other animals, such as market swine and dairy cattle,
-have their own grouping.
+test showed which means were different between the animals. Groupings
+for pair-wise relationships were extracted, where the letters in Figure
+9 represent the different groupings. Thus, asses, ducks, goats, mules,
+and sheep all had statistically similar emission rates (Figure 9). Most
+of the other animals, such as market swine and dairy cattle, have their
+own grouping.
 
 \begin{figure}
 \centering
-\includegraphics{SultzerSwitFinalProject_files/figure-latex/anova results-1.pdf}
+\includegraphics{SultzerSwit_ENV872_Project_files/figure-latex/anova results-1.pdf}
 \caption{Animal Groupings of Methane Emissions}
 \end{figure}
 
@@ -367,27 +368,28 @@ have their own grouping.
 
 With approximately a tenth of all methane emissions coming from manure
 collections ponds, amounts of manure must be considered and properly
-managed (Horn, 2018). To summarize, we investigated how methane
-emissions changed over time and how they differed between livestock. Our
-analysis revealed a significant upward trend in emissions over time
-across all selected livestock in the USA. The animals with the highest
-emissions, dairy cattle and market swine, exhibited significant trends
-with dairy cattle decreasing and market swine increasing from 1980-2018.
-A one-way ANOVA test confirmed that there were significant differences
-in methane emission rates between animals. The Tukey's HSD test resulted
-in 8 groups, with asses, ducks, goats, mules, and sheep being paired in
-the lowest emitting group. Dairy cattle and market swine had their own
-groups and were the highest emitters.
+managed (Horn, 2018). To summarize, this project investigated how
+methane emissions changed over time and how they differed between
+livestock. Analysis revealed a significant upward trend in emissions
+over time across all selected livestock in the USA. The animals with the
+highest emissions, dairy cattle and market swine, exhibited significant
+trends with dairy cattle decreasing and market swine increasing from
+1980-2018. A one-way ANOVA test confirmed that there were significant
+differences in methane emission rates between animals. The Tukey's HSD
+test resulted in 8 groups, with asses, ducks, goats, mules, and sheep
+being paired in the lowest emitting group. Dairy cattle and market swine
+had their own groups and were the highest emitters.
 
-Further analysis could include researching the decrease in total methane
-emissions between \textasciitilde1980-1985. Within this dataset,
-additional research avenues include assesing trends in other green house
-gases, including nitrous oxide and carbon dioxide emissions. Our
-research did not include methane emissions from non-manure sources,
-including cattle burping. However, recent strides in research includes
-innovative solutions to reducing methane produced and emitted by
-livestock. Such innovations include burp backpacks, and vaccinations for
-reducing methane producing microbes(Bustamante, 2008).
+Further analysis could include researching the reasons behind the
+decrease in total methane emissions between \textasciitilde1980-1985.
+Within this dataset, additional research avenues include assessing
+trends in other green house gases, including nitrous oxide and carbon
+dioxide emissions. Our research did not include methane emissions from
+non-manure sources, such as cattle burping. However, recent strides in
+methane reduction research include innovative solutions to limiting
+methane produced and emitted by livestock. Such methods include burp
+backpacks and vaccinations for reducing methane producing microbes
+(Bustamante, 2008).
 
 \newpage
 
