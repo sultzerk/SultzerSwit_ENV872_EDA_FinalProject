@@ -133,14 +133,7 @@ Total_ts_mk #low p-value so there is a trend!
 
 
 
-```{r}
 
-#use a cowplot
-#use plot.ts or ts.plot
-#pivot wider to separate items
-#trend for time series
-
-```
 
 Anova test and stuff
 ```{r, viewing boxplot of methane by animal}
