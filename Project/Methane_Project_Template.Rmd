@@ -32,6 +32,7 @@ library(lubridate)
 library(trend)
 library(Kendall)
 library(agricolae)
+library(cowplot)
 
 # Set your ggplot theme
 mytheme <- theme_classic(base_size = 14) + 
@@ -49,34 +50,24 @@ Poop_raw <- read.csv("../Data/Raw/FAOSTAT_data_1980_2050.csv", stringsAsFactors 
 
 # Rationale and Research Questions
 
-For this project, we were interested in manure management and greenhouse gas emissions created by livestock.  Our initial dataset considered methane, nitrous oxide, and carbon dioxide. Research revealed that "livestock are reckoned to be responsible for up to 14% of all greenhouse emissions from human activities" (BBC article).  With such a substantial amount of human activities, we wanted to see how livestock factored into emissions. When considering different emissions types, we focused on methane because methane is a very detrimental greenhouse gas: it traps heat at a rate 25 times greater than carbon dioxide (BBC article).  Methane gas explored here is produced by the anaerobic decomposition of manure stored or treated.  
+For this project, we were interested in manure management and greenhouse gas emissions created by livestock.  Our initial dataset considered methane, nitrous oxide, and carbon dioxide. Research revealed that "livestock are reckoned to be responsible for up to 14% of all greenhouse emissions from human activities" (BBC article).  With such a substantial amount of human activities, we wanted to see how livestock factored into emissions. When considering different emission types, we focused on methane because methane is a very detrimental greenhouse gas: it traps heat at a rate 25 times greater than carbon dioxide (BBC article).  Methane gas explored here is produced by the anaerobic decomposition of manure stored or treated. Our research and data availability led us to these two research questions:
 
-Question:
 
-_*Question 1: Have methane emissions changed over time?*_
+* Question 1: Have methane emissions changed over time?
 
-* Create time series of methane produced by one or two livestock for general trend
-+ Use CH4 emissions variable – want to see if the gigagrams of methane have increased over time 
-+ Filter for one element for time series?
 
-_* Question 2: Does the average methane emissions rate differ between each animal category?*_
-Specifically:
-
-* Is there a difference in rate produced by each animal? Looking for statistical difference between the rates of different livestock
-+ Run an ANOVA test - check whether or not there is a significant difference between livestock 
-+ Use the Implied emissions factor variable 
-+ Make fancy summary tables
+* Question 2: Does the average methane emissions rate differ between each animal category?
 
 
 \newpage
 
 # Dataset Information
 
-Dataset used for this project was found from the Food & Agriculture Organization of the United Nations (FAO), specifically from FAOSTAT.  FAOSTAT provides free access to statistics pertaining to agriculture and for over 245 countries.  For this analysis, we focused on emissions in the United States. *more info on how data was collected*
+The dataset used for this project was retrieved from the Food & Agriculture Organization of the United Nations (FAO), specifically from FAOSTAT.  FAOSTAT provides free access to statistics pertaining to agriculture for over 245 countries.  For this analysis, we focused on emissions in the United States. *more info on how data was collected*
 
-Metadata!
 
-**what values should be in the table? total dataset or just specific to methane and our years?
+
+**what values should be in the table? total dataset or just specific to methane and our years? do all the things
 **Remember to create README file
 **remmber to write csv's for all processed data
 
@@ -90,7 +81,7 @@ First, we viewed a summary of our data to decide how to pare it down and wrangle
 ```{r, include=FALSE}
 summary(Poop_raw)
 ```
-We wanted to make our dataset more manageable, so we filtered for the specific columns we wanted to retain, the variable we were interested in (methane emissions), and only focused on the past years.  
+We wanted to make our dataset more manageable, so we filtered for the specific columns we wanted to retain, the variable we were interested in (methane emissions), and only focused on historical data.  
 
 
 
@@ -104,10 +95,17 @@ CH4_time <- Poop_raw %>%
 write.csv(CH4_time, file = "../Data/Processed/CH4_time.csv", row.names=FALSE)
 ```
 
+In order effectively conduct a time series analysis, we made all the different livestock their own variables. We used the pivot_wider function to separate the livestock from the Items column into separate variables with their associated methane emission values. This allowed separate time series to be run on the desired livestock species.
 
+```{r, wrangling, pivot_wider, include=FALSE}
+#Separate animal items into individual columns
+CH4_items <- pivot_wider(CH4_time, names_from=Item, values_from=Value)
+#saving processed data
+write.csv(CH4_items, file = "../Data/Processed/CH4_items.csv", row.names=FALSE)
+```
 ## Basic visualizations
 
-First, when considering our first research question, we wanted to see how methane emissions appear over time.  When combining all animals, we can see there is a general increasing trend over time (Figure 1). However, there is a sharp decrease in methane emissions at the beginning of the dataset (~1980-1985) that might warrent investigation later. For our analysis, we wanted to investigate whether this trend was significant. 
+First, when considering our first research question, we wanted to see how methane emissions appear over time.  When combining all animals, we can see there is a general increasing trend over time (Figure 1). However, there is a sharp decrease in methane emissions at the beginning of the dataset (~1980-1985) that might warrant investigation later. For our analysis, we wanted to investigate whether this trend was significant. 
 
 ```{r, fig.cap="Methane Emissions Over Time", echo=FALSE, message=FALSE, warning=FALSE}
 #making filtered dataset for averages
@@ -120,13 +118,23 @@ Total.CH4.allyears <- CH4_time %>%
 write.csv(Total.CH4.allyears, file="../Data/Processed/CH4_allyears.csv", row.names = FALSE)
 
 #view lineplot
-CH4.average.plot <- ggplot(data=Total.CH4.allyears,aes(x=Year, y=Sum.Methane))+
+CH4.sum.plot <- ggplot(data=Total.CH4.allyears,aes(x=Year, y=Sum.Methane))+
   geom_line()+
   geom_smooth(method = lm )+
   labs(y="Total CH4 (gg)", title="Methane Emissions Over Time")+
   scale_y_continuous(limits = c(1200,1500))
-CH4.average.plot
+CH4.sum.plot
 
+```
+
+We were also interested in the total emissions per animal. We visualized total methane emissions for each animal from 1980-2018 (Figure 2). It is evident that dairy cattle and market swine had the highest emission rates.
+
+```{r, fig.cap="Methane Emissions by Animals", echo=FALSE, message=FALSE, warning=FALSE }
+#simple visualization of methane emissions from animals 
+CH4_animal_plot <- ggplot(CH4_time, aes(x=Year, y=Value, color=Item))+
+  geom_line(size=1.1)+
+  labs(y="Methane (gigagrams)", title = "Methane Emissions by Animals", col="Animal")
+print(CH4_animal_plot)
 ```
 
 Our second research question focused on the different emission rates between animals. We were curious about this question when we explored a boxplot showing the different rates (Figure 2). According to this boxplot, we suspected that there might be statistical differences since for, example: dairy cattle and market swine had higher rates than others. 
@@ -146,16 +154,56 @@ CH4.boxplot
 
 ## Research Question 1
 
-To answer our first research question, we conducted a time series on the overall methane production for all livestock.  Since methane was only calculated once a year, there was no seasonality to our data, and we were not able to decompose our time series. However, we conducted a Mann-Kendall test, which confirmed that there was a significant trend (p-value < 0.05). From our data exploration, we can say that overall that trend is increasing: methane emissions between 1980 and 2018 have increased across 13 livestock in the United States.  
+To answer our first research question, we conducted a time series on the overall methane production for all livestock.  Since methane was only calculated once a year, there was no seasonality to our data, and we were not able to decompose our time series. However, we conducted a Mann-Kendall test, which confirmed that there was a significant trend (p-value < 0.05). From our data exploration, we can say that overall the trend is increasing: methane emissions between 1980 and 2018 have increased across 13 livestock in the United States.  
 
-```{r, include=FALSE}
+From visualizing the total emission rates, dairy cattle and market swine showed the highest emission rates. We also decided to conduct a time series analysis to determine if there was a significant trend. The Mann-Kendall test confirmed that a significant trend was present for both animals (p-value < 0.05). 
+
+```{r, time.series, include=FALSE}
 #running time series
 Total_ts <- ts(Total.CH4.allyears$Sum.Methane, start=1980, end=2018)
 
 #run Mann-Kendall test to test for trend
 Total_ts_mk <- mk.test(Total_ts)
 Total_ts_mk #low p-value so there is a trend!
+
+#Create time series component for dairy cattle
+CH4_cattle_dairy_ts <- ts(CH4_items$`Cattle, dairy`, start=1980, end=2018)
+
+#Run Mann-Kendall test to test for trend
+CH4_cattle_dairy_mk <- mk.test(CH4_cattle_dairy_ts)
+CH4_cattle_dairy_mk #low p-value so there is a trend!
+
 ```
+
+
+
+```{r dairy.cattle.ts, echo=FALSE}
+Cattle_dairy_plot <-
+ggplot(CH4_items, aes(x = Year, y = `Cattle, dairy`)) +
+  geom_line() +
+  labs(y="CH4 Emissions (gigagrams)", title="Methane Emissions for Dairy Cattle", x="Year") +
+  geom_smooth( method = lm )+
+  ylim(400,650)
+print(Cattle_dairy_plot)
+```
+
+
+```{r market.swine.ts, echo=FALSE}
+Swine_market_plot <-
+ggplot(CH4_items, aes(x = Year, y = `Swine, market`)) +
+  geom_line() +
+  labs(y="CH4 Emissions (gigagrams)", title="Methane Emissions for Market Swine", x="Year") +
+  geom_smooth( method = lm )+
+  ylim(400,650)
+print(Swine_market_plot)
+```
+```{r plot.grid, echo=FALSE}
+#combine animal time series plots in grid
+Cattle_Swine_plot <- plot_grid(Cattle_dairy_plot,Swine_market_plot)
+print(Cattle_Swine_plot)
+```
+
+
 
 ## Research Question 2
 To answer the second research question, we conducted a one-way ANOVA test to evaluate whether the different animals, on average, have different emission rates.  To begin this process, we had to test the emission rates for normality.  The important assumption for generalized linear models is the normality of residuals.  The Shapiro-Wilk test showed that, of the 13 livestock, only ducks, breeding swine, and market swine were normally distributed. When viewing a Q-Q plot, once can see the data does not follow a normal distribution (Figure 3). Lastly, Bartlett's test for homogeneity of variances was run, which revealed that the variances were not equal (p < 0.05).  Even though all of the tests for normality failed, we proceeded on with the analysis.  
@@ -236,24 +284,23 @@ CH4.groups.plot <- ggplot(CH4_time, aes(x=Item, y = Value))+
 CH4.groups.plot
 ```
 
-
-Nadia: Time series
-Kendra: ANOVA and grouping
-
-
-
-
-
-
 \newpage
 
 # Summary and Conclusions
 
-Conclusions from time series and ANOVA
-Include normality test results
+With approximately a tenth of all methane emissions coming from manure collections ponds, amounts of manure must be considered and properly managed (Horn, 2018). To summarize, we investigated how methane emissions changed over time and how they differed between livestock. Our analysis revealed a significant upward trend in emissions over time across all selected livestock in the USA. The animals with the highest emissions, dairy cattle and market swine, exhibited significant trends with dairy cattle decreasing and market swine increasing from 1980-2018. A one-way ANOVA test confirmed that there were significant differences in methane emission rates between animals. The Tukey's HSD test resulted in 8 groups, with asses, ducks, goats, mules, and sheep being paired in the lowest emitting group. Dairy cattle and market swine had their own groups and were the highest emitters. 
+
+Further analysis could include researching the decrease in total methane emissions between ~1980-1985. Within this dataset, additional research avenues include assesing trends in other green house gases, including nitrous oxide and carbon dioxide emissions. Our research did not include methane emissions from non-manure sources, including cattle burping. However, recent strides in research includes innovative solutions to reducing methane produced and emitted by livestock. Such innovations include burp backpacks, and vaccinations for reducing methane producing microbes(Bustamante, 2008). 
 
 \newpage
 
 # References
 BBC citation article: https://www.bbc.com/future/article/20190806-how-vaccines-could-fix-our-problem-with-cow-emissions
 <add references here if relevant, otherwise delete this section> 
+^^author??
+
+Add Horn citation for cow graphic
+
+Cite FAO
+
+Cow burps (Bustmanete, 2008)
