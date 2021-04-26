@@ -5,7 +5,7 @@ output:
     fig_caption: yes
     number_sections: yes
 geometry: margin=2.54cm
-title: "Methane Emissions Status for Manure Management across USA"
+title: "Methane Emissions Status for Manure Management Across the USA"
 subtitle: "https://github.com/sultzerk/SultzerSwit_ENV872_EDA_FinalProject.git"
 author: "Nadia Swit and Kendra Sultzer"
 fontsize: 12pt
@@ -18,7 +18,7 @@ mainfont: Times New Roman
 \newpage
 **List of Tables**
 
-1. Table 1: Structure of Variables of Interest in Analysis 
+1. Table 1: Structure of Variables of Interest in Analysis............................6 
 \newpage
 \listoffigures 
 \newpage
@@ -52,7 +52,7 @@ Poop_raw <- read.csv("../Data/Raw/FAOSTAT_data_1980_2050.csv", stringsAsFactors 
 
 # Rationale and Research Questions
 
-For this project, we were interested in manure management and greenhouse gas emissions created by livestock.  Our initial dataset considered methane, nitrous oxide, and carbon dioxide. Research revealed that "livestock are reckoned to be responsible for up to 14% of all greenhouse emissions from human activities" (BBC article).  With such a substantial amount of human activities, we wanted to see how livestock factored into emissions. When considering different emission types, we focused on methane because methane is a very detrimental greenhouse gas: it traps heat at a rate 25 times greater than carbon dioxide (BBC article).  Methane gas explored here is produced by the anaerobic decomposition of manure stored or treated. Our research and data availability led us to these two research questions:
+For this project, the area of interest was manure management and greenhouse gas emissions created by livestock.  The initial dataset considered methane, nitrous oxide, and carbon dioxide. Research revealed that "livestock are reckoned to be responsible for up to 14% of all greenhouse emissions from human activities" (Watts, 2019).  With such a substantial amount of human activities, we wanted to see how livestock factored into emissions. When considering different emission types, we focused on methane because methane is a very detrimental greenhouse gas: it traps heat at a rate 25 times greater than carbon dioxide (Watts, 2019).  Methane gas explored here is produced by the anaerobic decomposition of manure stored or treated. Our research and data availability led us to these two research questions:
 
 
 * Question 1: Have methane emissions changed over time?
@@ -65,7 +65,7 @@ For this project, we were interested in manure management and greenhouse gas emi
 
 # Dataset Information
 
-The dataset used for this project was retrieved from the Food & Agriculture Organization of the United Nations (FAO), specifically from FAOSTAT.  FAOSTAT provides free access to statistics pertaining to agriculture for over 245 countries.  For this analysis, we focused on emissions in the United States. *more info on how data was collected*
+The dataset used for this project was retrieved from the Food & Agriculture Organization of the United Nations (FAO), specifically from FAOSTAT.  FAOSTAT provides free access to statistics pertaining to agriculture for over 245 countries.  This analysis focused on emissions in the United States.  Emissions were computed following the 2006 Guidelines for National GHG Inventories of the Intergovernmental Panel on Climate Change (IPCC). Methane emissions were estimated at the country level by multiplying the number of livestock in heads by the IPCC emission factors (FAO, 2020).
 
 ## Data Structure
 
@@ -143,7 +143,7 @@ CH4_animal_plot <- ggplot(CH4_time, aes(x=Year, y=Value, color=Item))+
 print(CH4_animal_plot)
 ```
 
-Our second research question focused on the different emission rates between animals. We were curious about this question when we explored a boxplot showing the different rates (Figure 2). According to this boxplot, we suspected that there might be statistical differences since for, example: dairy cattle and market swine had higher rates than others. 
+Our second research question focused on the different emission rates between animals. We were curious about this question when we explored a boxplot showing the different rates (Figure 3). According to this boxplot, it is suspected that there might be statistical differences since for, example: dairy cattle and market swine had higher rates than others. 
 
 ```{r, viewing boxplot of methane by animal, fig.cap="Average Methane Emissions by Animal", message=FALSE, warning=FALSE, echo=FALSE}
 CH4.boxplot <- ggplot(data = CH4_time, aes(x=Item, y = Value))+
@@ -187,9 +187,9 @@ print(Stock_plot_nochix)
 
 ## Research Question 1
 
-To answer our first research question, we conducted a time series on the overall methane production for all livestock.  Since methane was only calculated once a year, there was no seasonality to our data, and we were not able to decompose our time series. However, we conducted a Mann-Kendall test, which confirmed that there was a significant trend (p-value < 0.05). From our data exploration, we can say that overall the trend is increasing: methane emissions between 1980 and 2018 have increased across 13 livestock in the United States.  
+To answer our first research question, we conducted a time series on the overall methane production for all livestock.  Since methane was only calculated once a year, there was no seasonality to our data, and we were not able to decompose our time series. However, we conducted a Mann-Kendall test, which confirmed that there was a significant trend (p-value < 0.05). From our data exploration, we can say that overall the trend is increasing: methane emissions between 1980 and 2018 have increased across 13 livestock in the United States (Figure 1).  
 
-From visualizing the total emission rates, dairy cattle and market swine showed the highest emission rates. We also decided to conduct a time series analysis to determine if there was a significant trend. The Mann-Kendall test confirmed that a significant trend was present for both animals (p-value < 0.05). Dairy cattle (Figure 7) had an overall negative trend in emissions while market swine had a positive trend (Figure 8). 
+From visualizing the total emission rates, dairy cattle and market swine showed the highest emission rates. We also decided to conduct a time series analysis to determine if there was a significant trend. The Mann-Kendall test confirmed that a significant trend was present for both animals (p-value < 0.05). Dairy cattle (Figure 6) had an overall negative trend in emissions while market swine had a positive trend (Figure 7). 
 
 ```{r, time.series, include=FALSE}
 #running time series
@@ -232,7 +232,7 @@ print(Swine_market_plot)
 ```
 
 ## Research Question 2
-To answer the second research question, we conducted a one-way ANOVA test to evaluate whether the different animals, on average, have different emission rates.  To begin this process, we had to test the emission rates for normality.  The important assumption for generalized linear models is the normality of residuals.  The Shapiro-Wilk test showed that, of the 13 livestock, only ducks, breeding swine, and market swine were normally distributed. When viewing a Q-Q plot, once can see the data does not follow a normal distribution (Figure 3). Lastly, Bartlett's test for homogeneity of variances was run, which revealed that the variances were not equal (p < 0.05).  Even though all of the tests for normality failed, we proceeded on with the analysis.  
+To answer the second research question, we conducted a one-way ANOVA test to evaluate whether the different animals, on average, have different emission rates.  To begin this process, we had to test the emission rates for normality.  The important assumption for generalized linear models is the normality of residuals.  The Shapiro-Wilk test showed that, of the 13 livestock, only ducks, breeding swine, and market swine were normally distributed. When viewing a Q-Q plot, once can see the data does not follow a normal distribution (Figure 8). Lastly, Bartlett's test for homogeneity of variances was run, which revealed that the variances were not equal (p < 0.05).  Even though all of the tests for normality failed, we proceeded on with the analysis.  
 
 ```{r, anova normality test, include=FALSE}
 # Test for normality. 
@@ -269,7 +269,7 @@ qqnorm(CH4_time$Value); qqline(CH4_time$Value)
 #not normal but deciding to proceed anyway
 ```
 
-Our analysis then revealed that there was a significant difference in mean emissions among animals (ANOVA; F: 4394 on 12 and 494 DF,p<0.05).  But which animals had different means? A Tukey's HSD test helped show which means were different between the animals.  We extracted groupings for pair-wise relationships where the letters in Figure 4 represent the different groupings.  Thus, asses, ducks, goats, mules, and sheep all had statistically similar emission rates (Figure 4). Most of the other animals, such as market swine and dairy cattle, have their own grouping. 
+Our analysis then revealed that there was a significant difference in mean emissions among animals (ANOVA; F: 4394 on 12 and 494 DF,p<0.05).  But which animals had different means? A Tukey's HSD test helped show which means were different between the animals.  We extracted groupings for pair-wise relationships where the letters in Figure 9 represent the different groupings.  Thus, asses, ducks, goats, mules, and sheep all had statistically similar emission rates (Figure 9). Most of the other animals, such as market swine and dairy cattle, have their own grouping. 
 
 ```{r, anova, include=FALSE}
 # Format ANOVA as aov
